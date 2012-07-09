@@ -31,7 +31,7 @@
      description="bundle all required stuff in a single directory (dir 'dist').">
         <mkdir dir="${dist}/deploy/WEB-INF/lib"/>
         <jar destfile="${dist}/deploy/WEB-INF/lib/hbci4java-server.jar" basedir="${classes}" compress="true"/>
-        
+
         <copy todir="${dist}/deploy">
             <fileset dir="deploy">
                 <exclude name="**/WEB-INF/classes/"/>
@@ -44,6 +44,7 @@
                 <attribute name="Main-Class" value="org.kapott.demo.hbci.server.TestServer"/>
             </manifest>
         </jar>
+		<copy file="lib/hbci4java.jar" tofile="${dist}/demo/deploy/WEB-INF/lib/hbci4java.jar"/>
         
         <copy todir="${dist}/demo/deploy">
             <fileset dir="demo/deploy">
