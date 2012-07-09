@@ -8,7 +8,8 @@ Requements
 
 Deploy
 ------
-Go to <root-dir> and run
+1. Adjust <root-dir>/build.properties
+2. Go to <root-dir> and run
 
 > ant dist
 
