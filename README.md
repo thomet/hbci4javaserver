@@ -24,7 +24,7 @@ Go to _dist/_ and run
 1. Got to _dist/demo/deploy_
 2. Edit _WEB-INF/web.xml_ and adjust rmiServer value
 3. run:
-> $ jar cfv pintan.war .
+> $ jar cfv hbci.war .
 4. Run war file in tomcat
 Please Check [README.DemoServer](README.DemoServer) for More Information
 
