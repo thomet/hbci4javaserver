@@ -26,6 +26,7 @@ Go to _dist/_ and run
 3. run:
 > $ jar cfv hbci.war .
 4. Run war file in tomcat
+
 Please Check [README.DemoServer](README.DemoServer) for More Information
 
 ###Create PinTanServlet
@@ -34,6 +35,7 @@ Please Check [README.DemoServer](README.DemoServer) for More Information
 3. run:
 > $ jar cfv pintan.war .
 4. Run war file in tomcat
+
 Please Check [README.PinTan](README.PinTan) for More Information
 
 
