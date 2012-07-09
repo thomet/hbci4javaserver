@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE web-app 
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" 
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+    <display-name>HBCI4Java Demo Server Administration</display-name>
+    <description>
+      This is an application that enables you to manage your personal
+      account(s) on an HBCI4Java Demo Server application.
+    </description>
+
+    <context-param>
+      <param-name>webmaster</param-name>
+      <param-value>hbci4java@kapott.org</param-value>
+    </context-param>
+
+    <servlet>
+        <servlet-name>static</servlet-name>
+        <servlet-class>
+          org.apache.catalina.servlets.DefaultServlet
+        </servlet-class>
+        <init-param>
+            <param-name>debug</param-name>
+            <param-value>0</param-value>
+        </init-param>
+        <init-param>
+            <param-name>listings</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+      <servlet-name>admin</servlet-name>
+      <servlet-class>org.kapott.demo.hbci.server.admin.AdminServlet</servlet-class>
+        <init-param>
+            <param-name>rmiServer</param-name>
+            <param-value>127.0.0.1</param-value>
+        </init-param>
+      <load-on-startup>5</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+      <servlet-name>static</servlet-name>
+      <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+      <servlet-name>admin</servlet-name>
+      <url-pattern>/login.html</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+      <servlet-name>admin</servlet-name>
+      <url-pattern>/commit.html</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+      <servlet-name>admin</servlet-name>
+      <url-pattern>/logout.html</url-pattern>
+    </servlet-mapping>
+
+    <session-config>
+      <session-timeout>30</session-timeout>
+    </session-config>
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+</web-app>

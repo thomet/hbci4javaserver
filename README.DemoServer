@@ -1,0 +1,424 @@
+
+
+Allgemeines
+===========
+
+Mit HBCI4Java-Server steht neben dem Framework zur Implementierung eines
+eigenen HBCI-Servers bereits ein Demo-Server zur Verfgung, der zum
+einen die prinzipielle Verwendung des Serverframeworks demonstrieren soll
+und zum anderen als QuickStart-Kit fr die ganz Ungeduldigen dienen soll,
+die ihre eigene HBCI-Applikation testen wollen, aber keinen dafr geeigneten
+HBCI-Account haben. ("Fr die Ungeduldigen" deshalb, weil der Demo-Server zur
+Zeit nur wenige Geschftsvorflle untersttzt).
+
+Getestet wurde der Server neben wallstreet9 (ebenfalls HBCI4Java-basiert)
+bereits gegen StarMoney als Client-HBCI-Applikation; auerdem wurden die 
+Grundfunktionen von aqmoney (ein OpenHBCI-basierter HBCI-Client) erfolgreich 
+gegen diesen Server getestet. Inzwischen wird der Demoserver wohl auch von den
+SFIRM-Entwicklern als Testserver fr deren HBCI-Client eingesetzt.
+
+Folgender Stand ist derzeit erreicht:
+
+  - der Demo-Server benutzt nur das offizielle API des Server-Frameworks.
+    Aus diesem Grund gelten fr die Funktionalitt des Demo-Servers also
+    auch alle Einschrnkungen, Hinweise und Mglichkeiten, die allgemein
+    auf die derzeitige Version des Server-Frameworks zutreffen (siehe Dateien
+    README und BUGS und die API-Dokumentation des Frameworks)
+    
+    (Zusammenfassung aktueller Stand: nur Sicherheitsmechanismen RDH und 
+    HBCI-PIN/TAN; funktionierende Schlsselverwaltung (neue einreichen, 
+    Schlssel ndern, Schlssel sperren, System-ID/Signatur-ID synchronisieren); 
+    Signatur/Verschlsselung arbeitet; kein Freischalten neuer Schlssel via 
+    INI-Brief erforderlich; HBCI-Versionen wie HBCI4Java (also 2.01, 2.1, 2.2); 
+    bei eingehenden Client-Nachrichten werden noch nicht alle Daten auf 
+    Gltigkeit bzw. gegen die BPD/UPD gecheckt; Einbindung von Callbacks zur 
+    Reaktion auf Auftragsnachrichten funktioniert)
+    
+  - im mitgelieferten Demo-Server werden zur Zeit nur die folgenden Geschfts-
+    vorflle untersttzt:
+      * Saldenabfrage
+      * Abfrage von Kontoumsatzdaten (Kontoauszge)
+          - mit und ohne Zeiteinschrnkung
+          - nur neue seit letzter Anfrage
+      * berweisung einreichen
+      * Umbuchung
+      * Lastschrift einreichen
+      * Kundennachricht senden 
+    Es ist aber leicht mglich, diese Liste um weitere GVs zu erweitern, es muss 
+    dann aber auch der entsprechende Code fr die Reaktion auf eintreffende 
+    Auftrge geschrieben werden (Vorlage siehe die schon implementieren GV-
+    Handler)
+    
+  - es gibt inzwischen ein rudimentres Backend-System, welches eine echte Bank
+    simuliert. Hier werden also tatschlich Bankkonten von Nutzern verwaltet.
+    Dabei werden die untersttzten Geschftsvorflle ber dieses
+    "Bank-System" abgewickelt, so dass hier tatschlich Vernderungen auf den
+    "Bankkonten" der jeweiligen Nutzer mglich sind.
+    
+  - Es ist ein Administrations-Frontend (Zugriff via Web) fr die "Bankkunden" 
+    vorhanden, die sich mit ihrer Nutzerkennung und einem Passwort einloggen 
+    knnen und damit Zugriff auf ihre persnlichen Daten haben, die im HBCI-
+    Server verwaltet werden (gltige Kunden-IDs, UPD-Version, Schlssel, 
+    System-IDs, gltige Kontoverbindungen, PIN/TAN-Daten). Fr die globalen 
+    Server-Daten (Bankleitzahl, untersttzte Geschftsvorflle, untersttzte 
+    HBCI-Versionen usw.) gibt es noch kein Administrations-Frontend.
+
+    
+Einiges zur Installation/Laufzeit des Demo-Servers
+==================================================
+
+  Der Demo-Server stellt eine Referenz-Implementation fr das HBCI4Java-Server-
+  Framework dar. Das heit, dass mithilfe des HBCI4Java Server Frameworks auch
+  ein eigener HBCI-Server entwickelt werden kann, der bzgl. der Konfiguration
+  und Behandlung von Geschftsvorfllen keinerlei Gemeinsamtkeiten mit dem
+  HBCI4Java Demo Server hat!
+
+  Installation des Demo-Servers aus dem Source-Archiv:
+  ----------------------------------------------------
+
+      - Auspacken des Source-Archives. Es wird ein Verzeichnis
+            "hbci4java-server-<version>-src" 
+        (zuknftige Bezeichnung <hbci4java-server>) angelegt
+        
+      - Wechsel in das Verzeichnis <hbci4java-server>
+      
+      - Anpassen der Datei ./build.properties:
+          . ndern der Properties "servletapi" und "hbci4java", so dass diese
+            auf die JAR-Archive fr die Servlet-API resp. die
+            HBCI4Java-Bibliothek zeigen (es kann jeweils entweder der Dateiname
+            der JAR-Datei oder das Verzeichnis mit den kompilierten
+            Klassen angegeben werden)
+            
+      - Kompilieren des Server-Frameworks und des Demo-Servers durch aufruf
+        von "ant dist"
+        
+      - Alles, was fr den Demo-Server bentigt wird, befindet sich jetzt
+        im Verzeichnis <hbci4java-server>/dist (wird in Zukunft als
+        <distdir> bezeichnet)
+        
+      - weiter geht es im Abschnitt "Installation allgemein"
+      
+      
+  Installation des Demo-Servers aus dem Binary-Archiv:
+  ----------------------------------------------------
+    
+      - Auspacken des Binary-Archives. Es wird ein Verzeichnis
+            "hbci4java-server-<version>-bin" 
+        (zuknftige Bezeichnung <hbci4java-server>) angelegt
+        
+      - das soeben erzeugte Verzeichnis wird im nachfolgenden
+        Abschnitt als <distdir> referenziert.
+    
+    
+  Installation allgemein
+  ----------------------
+    
+      - Um den Demo-Server in Betrieb nehmen zu knnen, muss dieser erst
+        auf die eigenen Bedrfnisse angepasst werden.
+        
+      - Das Verzeichnis <distdir>/demo/server-data-template stellt ein
+        Grundgerst fr die vom Server bentigten Dateien bereit
+        
+      - Von diesem Verzeichniss wird am besten eine Kopie erstellt, der
+        neue Verzeichnisname lautet <distdir>/demo/server-data
+        (cp -a <distdir>/demo/server-data-template <distdir>/demo/server-data)
+        
+      - jetzt mssen einige Dateien im Verzeichnis <distdir>/demo/server-data
+        angepasst werden:
+          . listeners
+              In dieser Datei wird eingetragen, welche Listener-Mechanismen fr
+              den Zugriff auf den HBCI-Server aktiv sein sollen (je ein Wert pro
+              Zeile). Gltige Werte sind "TCP" (fr RDH-Zugnge) und "PinTan"
+              (fr HBCI-PIN/TAN). Mehr Informationen ber notwendige 
+              Gegegenheiten fr HBCI-PIN/TAN sind in der Datei
+              README.PinTan zu finden.
+          . address
+              Hier wird die IP-Adresse eingetragen, auf der der HBCI-Server auf 
+              eingehende Verbindungen warten soll. Der HBCI-Server wartet
+              zur Zeit *immer* auf TCP-Port 3000 auf eingehende Verbindungen.
+              Gegebenenfalls mssen also Firewalls entsprechend konfiguriert
+              werden, um Zugriffe auf diesen Port von auen zu erlauben.
+          . pintanurl
+              Falls das PIN/TAN-Verfahren verwendet werden soll, wird in dieser
+              Datei die komplette URL fr den Zugriff auf das HBCI-PIN/TAN-
+              Servlet hinterlegt (siehe dazu auch README.PinTan).
+          . blz
+              hier wird die Bankleitzahl eingetragen, die die "Bank" haben soll
+          . loglevel
+              einen Wert zwischen 0 (kein Logging) und 5 (Debug-Logging), welcher
+              das Level angibt, mit welchem der HBCI-Server Logausgaben erzeugen
+              soll
+        der Inhalt aller anderen Dateien kann frs Erste beibehalten werden, das
+        damit erzeugte Server-Verhalten wird im nchsten Abschnitt
+        ("Default-Serververhalten") beschrieben.
+        
+      - Der Server kann jetzt gestartet werden. Dazu muss ins Verzeichnis
+        <distdir> gewechselt werden. Der Server wird dann mit folgendem Kommando
+        gestartet:
+        
+          java \
+              -cp $HBCI4JAVADIR/hbci4java.jar:deploy/WEB-INF/lib/hbci4java-server.jar:demo/deploy/WEB-INF/lib/hbci4java-server-demo.jar \
+              org.kapott.demo.hbci.server.TestServer demo/server-data
+              
+        Unter Windows sind anstelle der Doppelpunkte (:) als Trennzeichen 
+        zwischen den einzelnen JAR-Dateien Semikolons (;) zu verwenden! Auerdem 
+        sind die unter Windows blichen Backslashes (\) anstatt der (/) als 
+        Pfaddelimiter zu benutzen.
+              
+        $HBCI4JAVADIR muss natrlich durch das Verzeichnis ersetzt werden, in 
+        welchem die Datei hbci4java.jar installiert ist. Alternativ kann anstatt
+        $HBCI4JAVADIR/hbci4java.jar auch das Verzeichnis angegeben werden, in 
+        welchem sich die kompilierten HBCI4Java-Klassen befinden.
+        
+        Das Argument "demo/server-data" gibt das Verzeichnis an, in welchem die
+        vorher angepassten Server-Konfigurationsdateien stehen. Das "Bank-
+        Backend-System" (zur Verwaltung der Bankkonten der Nutzer usw.) benutzt 
+        automatisch das Verzeichnis demo/server-data-backend fr die Speicherung 
+        seiner Daten. Es wird also immer einfach "-backend" an das Serverdaten-
+        Verzeichnis angehngt. Wenn das Verzeichnis mit den Serverdaten (hier 
+        "demo/server-data" also mit <serverdata> bezeichnet wird, so ist darauf 
+        zu achten, dass es beim ersten Server-Start ein leeres Verzeichnis 
+        <serverdata>/../<serverdata>-backend gibt.
+        
+      - Nach dem Server-Start sieht man eigentlich erst mal nichts ;-)
+        Der Server ist jetzt im Prinzip bereit fr die Kommunikation mit
+        HBCI-Clients. Log-Ausgaben werden im aktuellen Verzeichnis in die Datei
+        "server_null.log" geschrieben. 
+        
+      - Die Konsole, auf der man den Server gestartet hat, kehrt von dem java-
+        Aufruf nicht zurck (der Server wird also kein Daemon, sondern bleibt
+        im Vordergrund). Grund ist, dass man jetzt auf dieser Konsole Kommandos
+        eingeben kann, um den Server zu steuern (sehr rudimentr). Folgende
+        Kommandos werden derzeit untersttzt:
+        
+          . halt
+              Erzwingt, dass der Server bei der nchsten Gelegenheit beendet 
+              wird. "Nchste Gelegenheit" bedeutet, dass alle hngenden 
+              Netzwerkverbindungen geschlossen sind und dass keine Dialoge mehr
+              aktiv sind. Das kann also u.U. eine ganze Weile dauern. Der Server
+              kann aber auch gefahrlos einfach durch Ctrl-C beendet werden.
+              
+          . reload
+              whrend der Serverlaufzeit knnen die Daten im Verzeichnis
+              <serverdata> manuell gendert werden (zum Beispiel zum ndern 
+              der BPD-Version, der untersttzten Geschftsvorflle usw.). Diese
+              Daten werden aber erst nach einem Aufruf von "reload" auf dieser
+              Admin-Konsole aktiv.
+              
+          . iniletter <userid> - ACHTUNG: ZUR ZEIT DEAKTIVIERT !
+              damit wird der INI-Brief ausgegeben, den der entsprechende Nutzer
+              seinerseits erzeugen und an die Bank senden wrde. Das Kommando
+              funktioniert also nur, wenn die angegebene userid existiert und
+              dieser Nutzer bereits Schlssel eingereicht hat. "iniletter" ist
+              nur fr Testzwecke da, weil eine tatschliche 
+              Schlsselfreischaltung zur Zeit nicht ntig ist - sobald Schlssel
+              eingereicht worden, sind diese Schlssel auch aktiv.
+              
+          . factorystats
+              damit werden Statistiken zur gegenwrtigen Ausnutzung der Objekt-
+              Pools der HBCI4Java-Bibliothek angezeigt. Wenn der HBCI-Server 
+              gerade nicht beschftigt ist (d.h. wenn gerade kein Dialog aktiv
+              ist), dann sollte das "used"-Feld immer "0" sein. Ist das nicht 
+              der Fall, dann handelt es sich um einen Bug, ber den ich gern
+              eine entsprechende Information htte - inklusive Beschreibung, wie 
+              das zu reproduzieren ist.
+              
+      - Wenn man diese Konsole *nicht* haben will (z.B. weil man den Server 
+        tatschlich als Hintergrundprozess laufen lassen will), so sollte man 
+        als zustzliches Kommandozeilenargument beim Starten des Servers 
+        "noconsole" angeben (nach dem Verzeichnisnamen fr die Serverdaten). 
+        Prinzipiell funktioniert das Umleiten der Standardeingabe aus /dev/null
+        zwar ebenfalls, allerdings ist dann der  Admin-Konsolen-Thread immer 
+        noch aktiv und belastet die CPU. Beim Benutzen von "noconsole" wird die 
+        Admin-Konsole berhaupt nicht gestartet. Der Prozess muss aber trotzdem 
+        manuell in den Hintergrund verschoben werden, das wird nicht automatisch
+        erledigt.
+        
+        
+  Default-Serververhalten
+  -----------------------
+         
+  Die in den HBCI4Java-Server-Archiven enthaltenen Dateien im Verzeichnis
+  demo/server-data-template erzeugen das im folgenden beschriebene Verhalten
+  des Demo-Servers. Der Inhalt dieser Dateien ist relativ intuitiv und kann
+  bei Bedarf natrlich entsprechend angepasst werden (fr Dateien, die vor
+  dem ersten Server-Start auf jeden Fall wenigstens berprft werden sollten,
+  siehe Abschnitt "Installation allgemein"). Die Dateinamen, in denen diese
+  Einstellungen gendert werden knnen, sind jeweils in Klammern angegeben.
+    
+    - Der Name der Bank ist "Stefan Palme Testinstitut (HBCI4Java)" (kiname)
+    
+    - Die Bank nimmt Verbindungen sowohl ber den "normalen" HBCI-Kanal
+      (TCP via Port 3000, Wert "TCP") als auch ber HBCI-PIN/TAN (also ber 
+      HTTPS, Wert "PinTan") entgegen (listeners) - siehe dazu auch die Datei
+      README.PinTan.
+    
+    - Es werden die HBCI-Versionen 2.01, 2.1 und 2.2 untersttzt (hbciversions).
+      Der Inhalt dieser Datei beeinflusst zur Zeit nur die Daten, die in den
+      BPD zurckgegeben werden. Bei eingehenden Verbindungen wird noch nicht
+      berprft, ob die in der Nachricht verwendete HBCI-Version auch tatschlich
+      untersttzt wird (in Wirklichkeit werden also zur Zeit alle diese
+      Versionen untersttzt).
+      
+    - Pro Kundennachricht drfen max. 5 verschiedene Geschftsvorflle 
+      bermittelt werden (gvspermsg). Auch dieser Wert hat nur Einfluss auf die 
+      erzeugte BPD, eingehende Nachrichten werden aber nicht auf die Einhaltung 
+      dieses Wertes berprft.
+      
+    - Die maximale Nachrichtengre fr Client-Nachrichten ist 8KB (maxmsgsize).
+      Dieser Wert hat nur Einfluss auf die erzeugten BPD, wird aber nicht fr
+      eingehende Nachrichten berprft.
+      
+    - Es werden die Sprachen Deutsch und Englisch untersttzt (languages). Diese
+      Werte dienen ebenfalls nur zur Erzeugung der BPD, zur Laufzeit werden diese
+      Daten nicht ausgewertet. Die default-Sprache, die der Demo-Server zurck-
+      liefert, ist immer der erste Eintrag in dieser Liste (auch diese 
+      Information wird zur Laufzeit nicht wirklich ausgewertet).
+      
+    - in allen drei untersttzten HBCI-Versionen werden die Geschftsvorflle
+      "Saldenabfrage", "Kundenmitteilung" und "berweisung einreichen" 
+      untersttzt (jobs_<hbciversion>). Da auch die untersttzten Geschfts-
+      vorflle je nach HBCI-Version verschieden sein knnen, gibt es je HBCI-
+      Version eine solche Datei [in spteren Versionen des Demo-Servers knnen 
+      hier bereits mehr untersttzte Geschftsvorflle aufgefhrt sein].
+      
+    - Die Daten fr den GV "Saldenabfrage" sehen wiefolgt aus (Dateien Saldo_*):
+        . max. 2 Saldenabfragen (=Segmente) pro Nachricht (*_maxnum)
+        . mindestens eine Signatur erforderlich (*_minsigs)
+        . in allen HBCI-Versionen werden die Versionen 3, 4 und 5 des GVs
+          untersttzt (*_versions_<hbciversion>)
+        . es gibt keine zustzlichen Parameter fr den GV Saldoabfrage 
+          (*_params)
+    - Fr die GVs "berweisung einreichen" und "Kundenmitteilung" funktioniert 
+      das ganze analog, nur dass hier in den Dateien *_params jeweils zustzlich
+      bentigte Parameter fr diese GVs eingestellt werden. Die Einhaltung 
+      dieser Parameter wird vom Server jedoch noch nicht berprft, sondern 
+      dienen zur Zeit nur der Erstellung der BPD.
+      
+    - Die Version der BPD fr alle drei untersttzten HBCI-Versionen ist "2"
+      (bpdversions_<hbciversion>). Da je nach HBCI-Version andere BPD gelten 
+      knnen, ist diese Information fr jede untersttzte HBCI-Version separat 
+      einstellbar. Finden nderungen an den bisher genannten Daten statt, so 
+      muss die Versionsnummer der betroffenen HBCI-Version (oder aller 
+      Versionen) um mindestens 1 erhht werden. [die BPD-Versionsnummer kann bei
+      neueren Versionen des Demoservers bereits hher sein].
+      
+    - die aktuelle Signatur-ID fr server-signierte Nachrichten steht in der
+      Datei "sigid"
+      
+    - Der Server kennt die beiden Nutzerkennungen "nutzer1" und "nutzer2" 
+      (userids).
+    
+    - Fr "nutzer1" gelten dabei die folgenden Daten:
+        . gltige Kunden-IDs, die er verwenden kann, sind "nutzer1" und
+          "nutzer1_kunde2" (nutzer1_customerids)
+        . die aktuell gltigen System-IDs fr diesen Nutzer stehen in der Datei
+          nutzer1_sysids
+        . die Menge der bereits eingereichten Signatur-IDs stehen jeweils in den
+          Dateien nutzer1_sigids_<sysid>. Es gibt also fr jede gltige System-
+          ID eine solche Datei, in welcher die Menge aller bereits eingereichten
+          Signatur-IDs festgehalten wird (die Datei kann auch leer sein).
+        . gltige Kontoverbindungen fr diesen Nutzer sind die folgenden:
+            - Girokonto mit der Nummer "1234567890", Name des Inhabers ist
+              "Stefan Palme", und er darf als Kunde mit der Kunden-ID
+              "nutzer1" darauf zugreifen
+            - usw. - diese Informationen stehen in der Datei nutzer1_accounts
+              im Format "<kontonummer>|<kontobezeichnung>|<realname>|<kundenid>"
+        . die Version der UPD fr diesen Nutzer ist "3" 
+          (nutzer1_accinfoversion);
+          bei nderungen an den Kontodaten muss diese Versionsnummer immer um
+          mindestens 1 erhht werden.
+        . die PIN fr das HBCI-PIN/TAN-Verfahren ist "12345" (nutzer1_pt_pin)
+        . die TANs fr das HBCI-PIN/TAN-Verfahren sind "11111111", "22222222",
+          ..., "99999999"; alle diese TANs sind auch noch verfgbar
+          (nutzer1_pt_tans)
+        . der Inhalt von nutzer1_passphrase wird fr den eigentlichen
+          Serverbetrieb nicht ermglicht - siehe dazu nchster Abschnitt
+          "Remote Account Administration"
+          
+     - Alle mglichen Nutzerkennungen sind in der Datei "userids" aufgefhrt,
+       fr jede dieser Nutzerkennungen muss es dann die Dateien
+       <userid>_{accinfoversion,accounts,customerids,sysids,sigids_<sysid>} fr 
+       die Konfiguration dieses Nutzers geben.
+       
+     - Aller 2 Minuten berprft das Server-Framework die im Speicher gehaltenen
+       Dialog- und Nutzerdaten. Dialog und Nutzerdaten, die lnger als fnf
+       Minuten nicht benutzt wurden, werden wieder ausgelagert. Das hat zur 
+       Folge, dass HBCI-Dialog, die lnger als fnf Minuten "still liegen",
+       ungltig werden.
+          
+         
+  Remote Account Administration
+  -----------------------------
+  
+  Der Demo-Server soll u.a. als Testserver fr eigenen HBCI-Client-Anwendungen
+  dienen. Dazu knnen auf diesem Server mehrere Nutzer verwaltet werden, die
+  diesen Server fr Testzwecke benutzen.
+  
+  Da beim Testen immer mal etwas schiefgeht und vor allem u.U. des fteren
+  Schlssel zurckgesetzt oder andere Daten (z.B. Kontodaten) fr bestimmte
+  Testflle getestet werden sollen, gibt es ein "Account-Administrations"-Tool,
+  welches es ermglichen soll, dass einzelne Nutzer die Daten ihres eigenen
+  Zugangs auf dem Server in Echtzeit einsehen und ndern knnen.
+  
+  Es handelt sich dabei um ein Web-Frontend, welches auf Serverseite als
+  Servlet implementiert ist. ber ein Web-Interface knnen sich also
+  Nutzer mit einem Account auf dem Testserver einloggen und ihre Daten
+  verndern. Das Servlet kommuniziert dabei mit dem laufenden HBCI-Server und
+  verndert die entsprechenden Daten in Echtzeit.
+  
+  Zur Installation des Account-Administration-Frontends:
+  
+    - fr die Installation ist ein Application Server ntig, der die Servlet
+      Specification V2.4 untersttzt (z.B. Tomcat 4+)
+      
+    - als Basis-Verzeichnis fr die Web-Applikation 
+      "HBCI4Java-Server Remote Account Administration" muss das Verzeichnis
+      <distdir>/demo/deploy benutzt werden. Der Application-Server muss also
+      so konfiguriert werden, dass eine bestimmte Pfadangabe in einer URL
+      (z.B. /hbciadmin) diese Web-Applikation aktiviert.
+      
+    - Die Datei "hbci4java.jar" (aus den HBCI4Java-Archiven) muss im
+      CLASSPATH des Application-Servers zu finden sein.
+      
+    - In der Datei "<distdir>/demo/deploy/WEB-INF/web.xml" muss eine Anpassung
+      vorgenommen werden:
+        . der Parameter "rmiServer" bei der Definition des Servlets
+          "admin" muss auf die IP-Adresse des lokalen Hosts gesetzt
+          werden (127.0.0.1 sollte auch gehen)
+      
+    - Anschlieend muss der Application-Server neu gestartet werden (einige
+      Application-Server untersttzten auch das Aktivieren neuer Applikationen
+      whrend der Laufzeit). Anschlieend steht das Administrations-Frontend
+      unter <meinserver>/hbciadmin (z.B.) zur Verfgung.
+      
+    - Wichtig ist, dass der Application-Server die Verwaltung von HTTP-Sessions
+      ber Cookies untersttzt und diese Untersttzung aktiviert ist (was i.d.R.
+      per default der Fall ist).
+      
+      
+  Benutzung des Account-Administrations-Frontends:
+  
+    - Nach Aufruf der entsprechenden URL sieht man ein Login-Formular. Als
+      Nutzerkennung muss hier eine der Nutzerkennungen des HBCI-Servers
+      verwendet werden (also z.B. "nutzer1"). Das Passwort fr diesen Nutzer
+      wird in der Datei <serverdata>/nutzer1_passphrase (also allgemein
+      <serverdata>/<userid>_passphrase) im Klartext(!) abgelegt (ich wei,
+      ist nicht sehr sicher, aber es ein *Demo*-Zugang) ;-)
+      
+    - Anschlieend erscheint ein Formular, welches alle nderbaren Daten
+      anzeigt. Die Daten knnen nur gendert werden, durch Klick auf
+      "nderungen bernehmen" werden diese nderungen direkt zum HBCI-Server
+      gesandt und sind sofort aktiv (sofern keine Fehlermeldung erscheint).
+      
+      Durch Klick auf "Daten neu lesen" werden die aktuellen Daten vom Server
+      neu abgeholt (falls also parallel ein HBCI-Client tatschlich Daten
+      auf dem Server verndert (z.B. die System-ID)).
+      
+      Mit "Logout" kann man sich wieder vom Administrations-Frontend abmelden.
+      
+
+Viel Spass
+
+-Stefan-
+hbci4java@kapott.org

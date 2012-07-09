@@ -1,0 +1,58 @@
+
+Allgemein (HBCI4Java-Server-Framework)
+--------------------------------------
+
+Das HBCI4Java-Server-Framework ist sehr modular aufgebaut. Es gibt einen
+Server-Kernel, der eingehende HBCI-Nachrichten bearbeitet, Antwortnachrichten
+erzeugt und wieder nach auen gibt. Die "Wege", auf denen HBCI-Nachrichten zum
+Server-Kernel gelangen, sind als separate Komponenten realisiert, die unabhngig
+voneinander zu- oder abgeschaltet werden knnen.
+
+Die Komponente fr das Entgegennehmen von Nachrichten fr HBCI-PIN/TAN besteht
+selbst aus zwei Teilen:
+
+1) Beim Starten einer HBCIServer-Instanz (HBCIServer.start()) wird ein RMI-
+   Objekt initialisiert und in der RMI-Registry registriert. Voraussetzung dafr
+   ist natrlich, dass PinTan-Support berhaupt aktiviert wurde (die DataStore-
+   Implementation muss bei getListeners() wenigstens "PinTan" als Listenelement
+   zurckliefern).
+   
+   Dieses RMI-Objekt nimmt eingehende Nachrichten via RMI entgegen, leitet sie
+   an den Server-Kernel weiter und gibt die HBCI-Antwortnachricht als Rck-
+   gabewert der RMI-Methode wieder zurck.
+
+2) Es gibt eine Servlet-Klasse (org.kapott.hbci.server.pintan.PinTanWrapper),
+   die HBCI-Nachrichten via HTTP(S) entgegennehmen und via RMI weitergeben kann.
+   Dieses Servlet msste also in einem Web-Container deployt werden - die URL
+   zu diesem Servlet ist dann die HBCI-PIN/TAN-URL. Das Servlet nimmt die Daten,
+   die via HTTP-POST bertragen werden, entgegegen und leitet sie via RMI an das
+   Objekt (1) weiter. Von dort aus gelangt die Nachricht in den Server-Kernel
+   und wird verarbeitet. Die Antwortnachricht wird als Rckgabewert der RMI-
+   Methode zurckgegeben - das Servlet verpackt diese Antwortnachricht wieder
+   in einem HTTP-Response und sendet sie an den Client zurck.
+
+Fr die Aktivierung von HBCI-PIN/TAN ist also folgendes zu tun:
+
+- in der DataStore-Implementation darauf achten, dass die Methode "getListeners"
+  mindestens den Wert "PinTan" zurckgibt.
+  
+- Server-Anwendung normal starten
+
+- Konfigurieren und Deployen des PinTanWrapper-Servlets in einem Application-
+  Server. 
+  Fr Tomcat wren konkret folgende Schritte notwendig:
+  
+    * Erzeugen eines neuen Verzeichnisses unter <CATALINA_HOME>/webapps,
+      z.B. <CATALINA_HOME>/webapps/hbciPinTan
+      
+    * Erzeugen folgender Struktur unterhalb von hbciPinTan:
+        . WEB-INF
+        . WEB-INF/web.xml
+        . WEB-INF/lib/hbci4java-server.jar
+        
+    * Die Datei WEB-INF/web.xml muss dazu evtl. noch angepasst werden, falls
+      der HBCI-Server auf einem anderen Host luft als Tomcat (Parameter
+      "rmiServer").
+      
+- die URL fr den Zugriff auf das deployte Servlet ist nun die URL fr die
+  Benutzung von HBCI-PIN/TAN.

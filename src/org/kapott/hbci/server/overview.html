@@ -1,0 +1,88 @@
+<html><body>
+<h1>Allgemeines</h1>
+<p>
+HBCI4Java-Server ermglicht das Implementieren eines eigenen HBCI-Servers.
+Auerdem ist in diesem Paket eine Referenz-Implementation eines HBCI-Servers
+enthalten, die (fast) sofort gestartet werden kann und somit als 
+Test-HBCI-Server fr eigene HBCI-Client-Anwendungen zur Verfgung steht.
+</p>
+
+<p>
+Zum einen wird also eine Java-Klassenbibliothek angeboten, die das
+Framework fr einen HBCI-Server realisiert. Der Grundgedanke dabei ist folgender:
+Um (z.B. bei einem Kreditinstitut) einen eigenen HBCI-Server zu entwickeln,
+wird eine Java-Anwendung geschrieben, welche eine Instanz der Klasse
+<code>org.kapott.hbci.server.HBCIServer</code> erzeugt und initialisiert. Hinter diesem
+Objekt verbirgt sich der komplette HBCI-Server, der mit <code>.start()</code>
+gestartet wird.<br/>
+Ein HBCI-Server muss natrlich an die jeweilige Umgebung angepasst werden. Dazu
+werden beim Initialisieren der HBCIServer-Instanz Java-Objekte bergeben,
+welche bestimmte Interfaces implementieren mssen. Diese Schnittstellen werden 
+aus dem HBCI4Java-Server-Code heraus benutzt, um mit dem Backend-System des
+jeweiligen Kreditinstitutes zu kommunizieren. 
+</p>
+
+<p>
+Zum einen handelt es sich dabei um ein Interface, welches benutzt wird, um
+die Laufzeitdaten des Servers in Erfahrung zu bringen. Dazu gehren Daten wie
+die Bankleitzahl des Kreditinstitutes, die IP-Adresse, auf der Server eingehende
+Verbindungen entgegennehmen soll, die zu untersttzenden HBCI-Versionen und Sprachen,
+die jeweils zu untersttzenden Geschftsvorflle samt der dazugehrigen 
+Geschftsvorfallparameter etc. Auerdem werden von HBCI4Java-Server ber diese Schnittstelle 
+die Menge der gltigen Benutzerkennungen abgefragt, die Kontoverbindungen, die
+pro Nutzer gltig sind usw. usf. Des weiteren wird diese Schnittstelle benutzt,
+um genderte Daten (z.B. genderte Schlssel oder Signatur-IDs) in das 
+Bank-Backendsystem zurckschreiben zu knnen.
+</p>
+
+<p>
+Eine weitere Schnittstelle, die von der HBCI-Server-Anwendung implementiert
+und bereitgestellt werden muss, ist eine Callback-Schnittstelle. Diese wird
+immer dann aus dem HBCI4Java-Server-Code heraus aufgerufen, wenn ein
+bestimmtes Ereignis - z.B. das Eintreffen eines Auftragssegmentes - stattgefunden hat.
+Die "Randdaten" des jeweiligen Auftrages (z.B. die Nutzerkennung/Kunden-ID des
+Kunden) werden dabei in einem Context-Objekt bereitgestellt. Die HBCI-Server-Anwendung
+muss auf solche Ereignisse reagieren (i.d.R. also die Auftragsdaten berprfen und
+evtl. eine entsprechende Aktion im eigentlichen Banksystem auslsen) und eventuell
+Rckgabedaten (Ergebnisse, Fehler-/Erfolgsmeldungen) bereitstellen.
+</p>
+
+<p>
+Der "interne" Teil von HBCI4Java-Server bernimmt dabei smtliche Details
+der Protokoll-Abwicklung: das Entgegennehmen von Nachrichten, Entschlsseln,
+berprfen der Signatur, Auswerten und berprfen des Nachrichteninhaltes bis
+hin zum Erzeugen und Versenden der Antwortnachricht.
+Auerdem werden smtliche Nachrichten, die die Schlssel- und Dialogverwaltung
+betreffen, vllig transparent von HBCI4Java-Server behandelt -- das heit, die
+HBCI-Server-Anwendung "sieht" nur die fr ein Banksystem tatschlich relevanten
+Daten, nmlich die schon aufbereiteten Daten aus den Auftragsnachrichten eines
+HBCI-Clients. Die von der HBCI-Anwendung generierten Antwortdaten werden
+ebenfalls in einer sehr einfachen Form an den HBCI4Java-Server-Code zurckgegeben,
+welcher dann die Erzeugung der jeweiligen Antwortnachricht (inklusive
+Signierung/Verschlsselung usw.) bernimmt.
+</p>
+
+<p>
+Zusammenfassend kann man also sagen, dass fr die Realisierung einer eigenen
+HBCI-Server-Anwendung und die Anbindung an ein bestehendes Backend-System "nur"
+zwei Schnittstellen tatschlich zu implementieren sind: zum einen eine Schnittstelle
+zum Zugriff auf die Laufzeitdaten des Backend-Systems (Nutzerkennungen/Schlssel
+usw.), zum anderen die Reaktion auf eingehende Auftragsnachrichten.
+</p>
+
+<p>
+Der zweite Teil des HBCI4Java-Server-Paketes stellt eine Referenz-Implementation
+eines HBCI-Servers dar. Hier sind also die beiden relevanten Schnittstellen
+bereits exemplarisch implementiert. Die Implementation ist dabei sehr einfach
+gehalten und entspricht natrlich nicht den Bedrfnissen einer "echten" Bank.
+Es ist aber immerhin mglich, eine im Prinzip beliebige Anzahl von Benutzern
+damit zu verwalten (der Server untersttzt natrlich auch die Behandlung von
+mehreren Dialogen gleichzeitig) und somit einen echten Bankbetrieb zu simulieren.
+</p>
+
+<hr size="1"/>
+<font size="-2" face="Arial">
+<p><code>HBCI4Java-Server</code> -- Copyright (c) 2003 Stefan Palme</p>
+<p><a href="mailto:hbci4java@kapott.org">hbci4java@kapott.org</a></p>
+</font>
+</body></html>

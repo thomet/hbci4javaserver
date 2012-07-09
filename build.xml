@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+
+<project name="hbci4java-server" default="compile">
+    <property file="build.properties"/>
+    
+    <property name="src" value="src"/>
+    <property name="demosrc" value="demo/src"/>
+    <property name="classes" value="deploy/WEB-INF/classes"/>
+    <property name="democlasses" value="demo/deploy/WEB-INF/classes"/>
+    
+    <property name="dist" value="dist"/>
+     
+    <path id="cp">
+        <pathelement location="${servletapi}"/>
+        <pathelement location="${hbci4java}"/>
+        <pathelement location="${classes}"/>
+    </path>
+    
+    <target name="compile"
+     description="compile all the needed stuff; after that add dir 'classes' to the classpath">
+        <mkdir dir="${classes}"/>
+        <javac srcdir="${src}" destdir="${classes}" classpathref="cp" debug="on" encoding="ISO-8859-1"/>
+        <rmic base="${classes}" classpathref="cp" verify="true" debug="true"/>
+
+        <mkdir dir="${democlasses}"/>
+        <javac srcdir="${demosrc}" destdir="${democlasses}" classpathref="cp" debug="on" encoding="ISO-8859-1"/>
+        <rmic base="${democlasses}" classpathref="cp" verify="true" debug="true"/>
+    </target>
+    
+    <target name="dist" depends="compile"
+     description="bundle all required stuff in a single directory (dir 'dist').">
+        <mkdir dir="${dist}/deploy/WEB-INF/lib"/>
+        <jar destfile="${dist}/deploy/WEB-INF/lib/hbci4java-server.jar" basedir="${classes}" compress="true"/>
+        
+        <copy todir="${dist}/deploy">
+            <fileset dir="deploy">
+                <exclude name="**/WEB-INF/classes/"/>
+            </fileset>
+        </copy>
+        
+        <mkdir dir="${dist}/demo/deploy/WEB-INF/lib"/>
+        <jar destfile="${dist}/demo/deploy/WEB-INF/lib/hbci4java-server-demo.jar" basedir="${democlasses}" compress="true">
+            <manifest>
+                <attribute name="Main-Class" value="org.kapott.demo.hbci.server.TestServer"/>
+            </manifest>
+        </jar>
+        
+        <copy todir="${dist}/demo/deploy">
+            <fileset dir="demo/deploy">
+                <exclude name="**/WEB-INF/classes/"/>
+            </fileset>
+        </copy>
+        
+        <copy todir="${dist}/demo/server-data-template">
+            <fileset dir="demo/server-data-template"/>
+        </copy>
+        <mkdir dir="${dist}/demo/server-data-backend"/>
+    </target>
+
+    <target name="clean"
+     description="remove all compiled binaries">
+        <delete includeEmptyDirs="yes">
+            <fileset dir="${classes}"/>
+            <fileset dir="${democlasses}"/>
+            <fileset dir="${dist}"/>
+        </delete>
+    </target>
+</project>
