@@ -11,6 +11,10 @@ Deploy
 Adjust _build.properties_ and run
 >$ ant dist
 
+Configuration
+-------------
+Copy _dist/demo/server-data-template_ to _dist/demo/server-data_
+
 Start Server
 ------------
 Go to _dist/_ and run
